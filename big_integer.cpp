@@ -172,7 +172,7 @@ big_integer big_integer::operator+() const {
 }
 
 big_integer big_integer::operator-() const {
-    return ~(*this) + 1ULL;
+    return ~(*this) + static_cast<ull>(1ULL);
 }
 
 big_integer big_integer::operator~() const {
