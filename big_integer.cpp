@@ -266,7 +266,7 @@ void big_integer::correct() {
 big_integer operator*(big_integer const &a, big_integer const &b) {
 
     if (a.is_zero() || b.is_zero()) {
-        return big_integer(0ull);
+        return 0;
     }
 
     big_integer abs_a(a.abs());
