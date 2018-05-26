@@ -15,7 +15,7 @@ my_vector::my_vector(ull *ptr, size_t size) {
         big._capacity = size;
         is_small = false;
 
-        new(&big._data) std::shared_ptr<ull>(ptr);
+        new(&big._data) std::shared_ptr<ull>(ptr, std::default_delete<ull[]>());
     }
 }
 
@@ -29,7 +29,7 @@ my_vector::my_vector(size_t size) : my_vector() {
         _size = big._capacity = size;
         is_small = false;
 
-        new(&big._data) std::shared_ptr<ull>(new ull[_size]);
+        new(&big._data) std::shared_ptr<ull>(new ull[_size], std::default_delete<ull[]>());
         std::fill(big._data.get(), big._data.get() + size, 0);
     }
 }
@@ -97,7 +97,7 @@ void my_vector::increase_capacity(size_t new_size) {
     if (is_small) {
         if (new_size > 1) {
             ull val = small;
-            new(&big._data) std::shared_ptr<ull>(new ull[2]);
+            new(&big._data) std::shared_ptr<ull>(new ull[2], std::default_delete<ull[]>());
             big._data.get()[0] = val;
             big._capacity = 2;
             is_small = false;
@@ -112,7 +112,7 @@ void my_vector::increase_capacity(size_t new_size) {
 
             auto *copy = new ull[new_cap];
             std::copy(big._data.get(), big._data.get() + std::min(new_cap, big._capacity), copy);
-            new(&big._data) std::shared_ptr<ull>(copy);
+            new(&big._data) std::shared_ptr<ull>(copy, std::default_delete<ull[]>());
 
             big._capacity = new_cap;
         }
