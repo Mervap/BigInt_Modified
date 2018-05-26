@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 2.8.4)
 project(BingInt_Modified)
 
 include_directories(${BIGINT_SOURCE_DIR})
+include_directories(gtest)
 
 add_executable(myBigInt_mod
         big_integer.h
