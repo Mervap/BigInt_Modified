@@ -6,8 +6,7 @@
 #include "big_integer.h"
 #include "my_vector.h"
 
-struct big_integer
-{
+struct big_integer {
     typedef unsigned int ui;
     typedef unsigned long long ull;
     big_integer();
@@ -65,6 +64,7 @@ struct big_integer
     friend std::string to_string(big_integer const &a);
     void swap(big_integer &other) noexcept;
     bool is_zero() const;
+
 private:
     bool sign;
     my_vector data;
