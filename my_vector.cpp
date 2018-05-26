@@ -48,6 +48,8 @@ my_vector::my_vector(const my_vector &other) {
     }
 }
 
+my_vector::big_data::~big_data() = default;
+
 my_vector::~my_vector() {
     if (!is_small) {
         big.~big_data();
@@ -216,5 +218,6 @@ bool my_vector::operator==(const my_vector &other) const {
     }
     return true;
 }
+
 
 

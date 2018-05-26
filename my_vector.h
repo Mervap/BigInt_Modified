@@ -39,6 +39,8 @@ private:
     struct big_data {
         size_t _capacity;
         std::shared_ptr<ull> _data;
+
+        ~big_data();
     };
 
     union {
