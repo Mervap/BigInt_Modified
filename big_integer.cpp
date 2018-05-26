@@ -3,8 +3,6 @@
 #include <stdexcept>
 #include <iostream>
 
-typedef uint32_t ui;
-typedef uint64_t ull;
 __extension__ typedef unsigned __int128 ui128;
 
 const ull MAX_DIGIT = UINT64_MAX;

@@ -6,9 +6,10 @@
 #include "big_integer.h"
 #include "my_vector.h"
 
+typedef uint32_t ui;
+typedef uint64_t ull;
+
 struct big_integer {
-    typedef unsigned int ui;
-    typedef unsigned long long ull;
     big_integer();
     big_integer(big_integer const &other);
     big_integer(int a);
