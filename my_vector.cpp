@@ -130,7 +130,7 @@ void my_vector::make_copy_for_sptr() {
     auto *copy = new ull[big._capacity];
     std::copy(big._data.get(), big._data.get() + big._capacity, copy);
 
-    new(&big._data) std::shared_ptr<ull>(copy, std::default_delete<ull[]>());
+    new(&big._data) std::shared_ptr<ull>(copy);
 }
 
 void my_vector::push_back(const my_vector::ull &element) {
