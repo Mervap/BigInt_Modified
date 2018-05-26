@@ -9,7 +9,6 @@ cmake-build-release/
 gtest/
 *.in
 *.out
-*.txt
 
 # Prerequisites
 *.d
