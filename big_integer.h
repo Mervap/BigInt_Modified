@@ -3,7 +3,6 @@
 
 #include <string>
 #include <cstdlib>
-#include "big_integer.h"
 #include "my_vector.h"
 
 typedef uint32_t ui;
