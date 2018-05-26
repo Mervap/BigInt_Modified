@@ -115,7 +115,7 @@ void my_vector::increase_capacity(size_t new_size) {
 
             auto *copy = new ull[new_cap];
             std::copy(big._data.get(), big._data.get() + std::min(new_cap, big._capacity), copy);
-            new(&big._data) std::shared_ptr<ull>(copy, std::default_delete<ull[]>());
+            new(&big._data) std::shared_ptr<ull>(copy);
 
             big._capacity = new_cap;
         }
