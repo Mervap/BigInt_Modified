@@ -104,6 +104,7 @@ void my_vector::increase_capacity(size_t new_size) {
         if (new_size <= 1) {
             small = big._data.get()[0];
             is_small = true;
+            big.~big_data();
         } else if (new_size > big._capacity || 2 * new_size < big._capacity) {
             size_t new_cap = new_size * 2;
 
