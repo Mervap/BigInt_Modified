@@ -63,6 +63,9 @@ my_vector &my_vector::operator=(const my_vector &other) {
 
     clear();
     if (other.is_small) {
+        if(!is_small) {
+            big.~big_data();
+        }
         small = other.small;
         _size = other._size;
         is_small = true;
@@ -130,7 +133,7 @@ void my_vector::make_copy_for_sptr() {
     auto *copy = new ull[big._capacity];
     std::copy(big._data.get(), big._data.get() + big._capacity, copy);
 
-    new(&big._data) std::shared_ptr<ull>(copy);
+    new(&big._data) std::shared_ptr<ull>(copy, std::default_delete<ull[]>());
 }
 
 void my_vector::push_back(const my_vector::ull &element) {
@@ -156,6 +159,7 @@ void my_vector::pop_back() {
     } else {
         assert(!is_small);
         increase_capacity(_size - 1);
+        assert(big._capacity > _size);
     }
     --_size;
 }
