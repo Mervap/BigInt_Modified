@@ -159,7 +159,6 @@ void my_vector::pop_back() {
     } else {
         assert(!is_small);
         increase_capacity(_size - 1);
-        assert(big._capacity > _size);
     }
     --_size;
 }
