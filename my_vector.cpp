@@ -4,21 +4,6 @@ typedef uint64_t ull;
 
 my_vector::my_vector() noexcept : small(0), is_small(true), _size(0) {}
 
-my_vector::my_vector(ull *ptr, size_t size) {
-    assert(size > 0);
-
-    _size = size;
-    if (size == 1) {
-        small = ptr[0];
-        is_small = true;
-    } else {
-        big._capacity = size;
-        is_small = false;
-
-        new(&big._data) std::shared_ptr<ull>(ptr, std::default_delete<ull[]>());
-    }
-}
-
 my_vector::my_vector(size_t size) : my_vector() {
 
     if (size <= 1) {
@@ -29,23 +14,23 @@ my_vector::my_vector(size_t size) : my_vector() {
         _size = big._capacity = size;
         is_small = false;
 
-        new(&big._data) std::shared_ptr<ull>(new ull[_size], std::default_delete<ull[]>());
-        std::fill(big._data.get(), big._data.get() + size, 0);
+        new (&big._data) std::shared_ptr<std::vector<ull>>(new std::vector<ull>(size));
     }
 }
 
 my_vector::my_vector(const my_vector &other) {
     if (other.is_small) {
         small = other.small;
-        _size = other._size;
         is_small = true;
     } else {
-        _size = other._size;
         big._capacity = other.big._capacity;
         is_small = false;
 
-        new(&big._data) std::shared_ptr<ull>(other.big._data);
+        new(&big._data) std::shared_ptr<std::vector<ull>>(other.big._data);
     }
+
+    _size = other._size;
+
 }
 
 my_vector::big_data::~big_data() = default;
@@ -63,19 +48,22 @@ my_vector &my_vector::operator=(const my_vector &other) {
 
     clear();
     if (other.is_small) {
-        if(!is_small) {
+        if (!is_small) {
             big.~big_data();
         }
         small = other.small;
-        _size = other._size;
         is_small = true;
     } else {
-        _size = other._size;
+        if (is_small) {
+            new(&big._data) std::shared_ptr<std::vector<ull>>(other.big._data);
+        } else {
+            std::copy(other.big._data.get()->begin(), other.big._data.get()->begin(), big._data.get()->begin());
+        }
         big._capacity = other.big._capacity;
         is_small = false;
-
-        new(&big._data) std::shared_ptr<ull>(other.big._data);
     }
+
+    _size = other._size;
     return *this;
 }
 
@@ -96,27 +84,24 @@ void my_vector::resize(size_t new_size) {
     }
 }
 
-void my_vector::increase_capacity(size_t new_size) {
+void my_vector::ensure_capacity(size_t new_size) {
     if (is_small) {
         if (new_size > 1) {
-            ull val = small;
-            new(&big._data) std::shared_ptr<ull>(new ull[2], std::default_delete<ull[]>());
-            big._data.get()[0] = val;
+            std::shared_ptr<std::vector<ull>> ptr(new std::vector<ull>(1, small));
+            ptr->resize(2);
+            new(&big._data) std::shared_ptr<std::vector<ull>>(ptr);
             big._capacity = 2;
             is_small = false;
         }
     } else {
         if (new_size <= 1) {
-            small = big._data.get()[0];
+            small = big._data.get()[0][0];
             is_small = true;
             big.~big_data();
         } else if (new_size > big._capacity || 2 * new_size < big._capacity) {
             size_t new_cap = new_size * 2;
 
-            auto *copy = new ull[new_cap];
-            std::copy(big._data.get(), big._data.get() + std::min(new_cap, big._capacity), copy);
-            new(&big._data) std::shared_ptr<ull>(copy);
-
+            big._data->resize(new_cap);
             big._capacity = new_cap;
         }
     }
@@ -130,10 +115,7 @@ void my_vector::make_copy_for_sptr() {
         return;
     }
 
-    auto *copy = new ull[big._capacity];
-    std::copy(big._data.get(), big._data.get() + big._capacity, copy);
-
-    new(&big._data) std::shared_ptr<ull>(copy, std::default_delete<ull[]>());
+    big._data.reset(new std::vector<ull>(*big._data));
 }
 
 void my_vector::push_back(const my_vector::ull &element) {
@@ -143,10 +125,10 @@ void my_vector::push_back(const my_vector::ull &element) {
         small = element;
         is_small = true;
     } else {
-        increase_capacity(_size + 1);
+        ensure_capacity(_size + 1);
         assert(big._capacity > _size);
 
-        big._data.get()[_size] = element;
+        big._data.get()[0][_size] = element;
     }
     ++_size;
 }
@@ -158,32 +140,26 @@ void my_vector::pop_back() {
         small = 0;
     } else {
         assert(!is_small);
-        increase_capacity(_size - 1);
+        ensure_capacity(_size - 1);
     }
     --_size;
 }
 
 void my_vector::clear() {
+    if(!is_small) {
+        big.~big_data();
+    }
+
     _size = 0;
     small = 0;
     is_small = true;
-}
-
-my_vector::iterator my_vector::begin() {
-    make_copy_for_sptr();
-
-    if (is_small) {
-        return &small;
-    } else {
-        return big._data.get();
-    }
 }
 
 const my_vector::ull &my_vector::back() const {
     if (is_small) {
         return small;
     } else {
-        return big._data.get()[_size - 1];
+        return big._data.get()[0][_size - 1];
     }
 }
 
@@ -194,7 +170,7 @@ ull &my_vector::operator[](size_t ind) {
     } else {
         assert(ind < _size);
         make_copy_for_sptr();
-        return big._data.get()[ind];
+        return big._data.get()[0][ind];
     }
 }
 
@@ -204,7 +180,7 @@ const ull &my_vector::operator[](size_t ind) const {
         return small;
     } else {
         assert(ind < _size);
-        return big._data.get()[ind];
+        return big._data.get()[0][ind];
     }
 }
 
@@ -220,3 +196,6 @@ bool my_vector::operator==(const my_vector &other) const {
     }
     return true;
 }
+
+
+
