@@ -49,7 +49,7 @@ my_vector &my_vector::operator=(const my_vector &other) {
     clear();
     if (other.is_small) {
         if (!is_small) {
-            big.~big_data();
+      //      big.~big_data();
         }
         small = other.small;
         is_small = true;
