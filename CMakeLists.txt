@@ -4,7 +4,7 @@ project(BIGINT)
 
 include_directories(${BIGINT_SOURCE_DIR})
 
-add_executable(big_integer_testing
+add_executable(BugInt_Modified
         big_integer_testing.cpp
         big_integer.h
         big_integer.cpp
@@ -14,8 +14,8 @@ add_executable(big_integer_testing
         my_vector.h
         my_vector.cpp)
 
-if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -fsanitize=address,undefined -Wall -std=c++11 -pedantic")
+if (CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address,undefined -Wall -std=c++11 -pedantic")
 endif()
 
-target_link_libraries(big_integer_testing -lpthread)
+target_link_libraries(BugInt_Modified -lpthread)
