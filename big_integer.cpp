@@ -298,7 +298,7 @@ void mul_big_small(my_vector &res, my_vector const &a, const ull b) {
     for (size_t i = 0; i < n; ++i) {
         mul = (ui128) a[i] * b;
         tmp = (mul & MAX_DIGIT) + carry;
-        res[i]  = ull_cast(tmp);
+        res[i] = ull_cast(tmp);
         carry = (mul >> BASE) + (tmp >> BASE);
     }
     res[n] = ull_cast(carry);
@@ -357,7 +357,7 @@ void constant_div(my_vector &res, my_vector &a, my_vector &b) {
         for (size_t j = m; j > 0; --j) {
             dev[j] = dev[j - 1];
         }
-        res[len - 1 - i]= qt;
+        res[len - 1 - i] = qt;
     }
 }
 
