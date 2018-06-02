@@ -14,7 +14,8 @@ my_vector::my_vector(size_t size) : my_vector() {
         _size = big._capacity = size;
         is_small = false;
 
-        new(&big._data) std::shared_ptr<std::vector<ull>>(new std::vector<ull>(size));
+        new(&big._data) std::shared_ptr<ull>(new ull[size], array_deleter());
+        std::fill(big._data.get(), big._data.get() + size, 0);
     }
 }
 
@@ -26,7 +27,7 @@ my_vector::my_vector(const my_vector &other) {
         big._capacity = other.big._capacity;
         is_small = false;
 
-        new(&big._data) std::shared_ptr<std::vector<ull>>(other.big._data);
+        new(&big._data) std::shared_ptr<ull>(other.big._data);
     }
 
     _size = other._size;
@@ -40,7 +41,8 @@ my_vector::my_vector(const std::vector<ull> &other) {
         big._capacity = other.size();
         is_small = false;
 
-        new(&big._data) std::shared_ptr<std::vector<ull>>(new std::vector<ull>(other));
+        new(&big._data) std::shared_ptr<ull>(new ull[other.size()], array_deleter());
+        std::copy(other.begin(), other.end(), big._data.get());
     }
 
     _size = other.size();
@@ -68,9 +70,9 @@ my_vector &my_vector::operator=(const my_vector &other) {
         is_small = true;
     } else {
         if (is_small) {
-            new(&big._data) std::shared_ptr<std::vector<ull>>(other.big._data);
+            new(&big._data) std::shared_ptr<ull>(other.big._data);
         } else {
-            std::copy(other.big._data.get()->begin(), other.big._data.get()->begin(), big._data.get()->begin());
+            std::copy(other.big._data.get(), other.big._data.get() + other._size, big._data.get());
         }
         big._capacity = other.big._capacity;
         is_small = false;
@@ -100,22 +102,18 @@ void my_vector::resize(size_t new_size) {
 void my_vector::ensure_capacity(size_t new_size) {
     if (is_small) {
         if (new_size > 1) {
-            std::shared_ptr<std::vector<ull>> ptr(new std::vector<ull>(1, small));
-            ptr->resize(2);
-            new(&big._data) std::shared_ptr<std::vector<ull>>(ptr);
+            std::shared_ptr<ull> ptr(new ull[2]{small}, array_deleter());
+            new(&big._data) std::shared_ptr<ull>(ptr);
             big._capacity = 2;
             is_small = false;
         }
     } else {
         if (new_size <= 1) {
-            small = big._data.get()[0][0];
+            small = big._data.get()[0];
             is_small = true;
             big.~big_data();
         } else if (new_size > big._capacity || 2 * new_size < big._capacity) {
-            size_t new_cap = new_size * 2;
-
-            big._data->resize(new_cap);
-            big._capacity = new_cap;
+            new_storage(new_size * 2);
         }
     }
 }
@@ -128,7 +126,7 @@ void my_vector::make_copy_for_sptr() {
         return;
     }
 
-    big._data.reset(new std::vector<ull>(*big._data));
+    new_storage(_size);
 }
 
 void my_vector::push_back(const my_vector::ull &element) {
@@ -141,7 +139,7 @@ void my_vector::push_back(const my_vector::ull &element) {
         ensure_capacity(_size + 1);
         assert(big._capacity > _size);
 
-        big._data.get()[0][_size] = element;
+        big._data.get()[_size] = element;
     }
     ++_size;
 }
@@ -172,7 +170,7 @@ const my_vector::ull &my_vector::back() const {
     if (is_small) {
         return small;
     } else {
-        return big._data.get()[0][_size - 1];
+        return big._data.get()[_size - 1];
     }
 }
 
@@ -183,7 +181,7 @@ ull &my_vector::operator[](size_t ind) {
     } else {
         assert(ind < _size);
         make_copy_for_sptr();
-        return big._data.get()[0][ind];
+        return big._data.get()[ind];
     }
 }
 
@@ -193,7 +191,7 @@ const ull &my_vector::operator[](size_t ind) const {
         return small;
     } else {
         assert(ind < _size);
-        return big._data.get()[0][ind];
+        return big._data.get()[ind];
     }
 }
 
@@ -210,5 +208,12 @@ bool my_vector::operator==(const my_vector &other) const {
     return true;
 }
 
+void my_vector::new_storage(size_t new_size) {
+    assert(!is_small);
+    assert(_size <= new_size);
 
-
+    std::shared_ptr<ull> tmp(new ull[new_size], array_deleter());
+    std::copy(big._data.get(), big._data.get() + _size, tmp.get());
+    big._data = tmp;
+    big._capacity = new_size;
+}

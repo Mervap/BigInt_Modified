@@ -9,6 +9,15 @@
 #include <cassert>
 #include <vector>
 
+struct array_deleter
+{
+    template <typename T>
+    void operator()(T* ptr) const
+    {
+        delete[] ptr;
+    }
+};
+
 struct my_vector {
     typedef uint64_t ull;
 
@@ -34,9 +43,12 @@ struct my_vector {
     const ull &operator[](size_t ind) const;
 
 private:
+    void new_storage(size_t new_size);
+
+private:
     struct big_data {
         size_t _capacity;
-        std::shared_ptr<std::vector<ull>> _data;
+        std::shared_ptr<ull> _data;
 
         ~big_data();
     };
