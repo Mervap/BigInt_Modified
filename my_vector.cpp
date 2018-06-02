@@ -14,7 +14,7 @@ my_vector::my_vector(size_t size) : my_vector() {
         _size = big._capacity = size;
         is_small = false;
 
-        new (&big._data) std::shared_ptr<std::vector<ull>>(new std::vector<ull>(size));
+        new(&big._data) std::shared_ptr<std::vector<ull>>(new std::vector<ull>(size));
     }
 }
 
@@ -30,7 +30,20 @@ my_vector::my_vector(const my_vector &other) {
     }
 
     _size = other._size;
+}
 
+my_vector::my_vector(const std::vector<ull> &other) {
+    if (other.size() == 1) {
+        small = other[0];
+        is_small = true;
+    } else if (other.size() > 1) {
+        big._capacity = other.size();
+        is_small = false;
+
+        new(&big._data) std::shared_ptr<std::vector<ull>>(new std::vector<ull>(other));
+    }
+
+    _size = other.size();
 }
 
 my_vector::big_data::~big_data() = default;
@@ -146,7 +159,7 @@ void my_vector::pop_back() {
 }
 
 void my_vector::clear() {
-    if(!is_small) {
+    if (!is_small) {
         big.~big_data();
     }
 

@@ -425,8 +425,7 @@ big_integer operator/(big_integer const &a, big_integer const &b) {
     }
 
     size_t N = 4 * BASE;
-    my_vector acc;
-    acc.push_back(0), acc.push_back(0), acc.push_back(1), acc.push_back(0), acc.push_back(1);
+    my_vector acc({0, 0, 1, 0, 1});
     constant_div(divis, acc, divisor);
 
     abs_b.data.push_back(0);
@@ -436,12 +435,10 @@ big_integer operator/(big_integer const &a, big_integer const &b) {
 
         ull qt;
         if (m == 1) {
-            my_vector acc1;
-            acc1.push_back(dev[m - 1]), acc1.push_back(dev[m]), acc1.push_back(0);
+            my_vector acc1({dev[m - 1], dev[m], 0});
             mul_vector(tmp2, acc1, divis);
         } else {
-            my_vector acc1;
-            acc1.push_back(dev[m - 2]), acc1.push_back(dev[m - 1]), acc1.push_back(dev[m]);
+            my_vector acc1({dev[m - 2], dev[m - 1], dev[m]});
             mul_vector(tmp2, acc1, divis);
         }
         shr(tmp2, N);
