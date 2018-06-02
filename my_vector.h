@@ -14,7 +14,7 @@ struct my_vector {
 
     my_vector() noexcept;
     explicit my_vector(size_t size);
-    my_vector(const std::vector<ull> &other);
+    explicit my_vector(const std::vector<ull> &other);
     my_vector(const my_vector &other);
     ~my_vector();
 
